@@ -15,14 +15,22 @@ socket.emit('join', nickname);
 form.addEventListener('submit', function(e) {
   e.preventDefault();
   if (input.value) {
-    socket.emit('chat message', { name: nickname, text: input.value });
+    const now = new Date();
+    const hour = now.getHours().toString().padStart(2, '0');
+    const minute = now.getMinutes().toString().padStart(2, '0');
+    socket.emit('chat message', {
+      name: nickname,
+      text: input.value,
+      time: `${hour}:${minute}`
+    });
     input.value = '';
   }
 });
 
 socket.on('chat message', function(msg) {
   const item = document.createElement('li');
-  item.textContent = `${msg.name}: ${msg.text}`;
+  // Saat bilgisini ekranda gösteriyoruz
+  item.textContent = `[${msg.time}] ${msg.name}: ${msg.text}`;
   messages.appendChild(item);
   messages.scrollTop = messages.scrollHeight;
 });
