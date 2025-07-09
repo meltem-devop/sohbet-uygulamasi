@@ -12,7 +12,7 @@ while (!nickname) {
 
 socket.emit('join', nickname);
 
-form.addEventListener('submit', function(e) {
+form.addEventListener('submit', function (e) {
   e.preventDefault();
   if (input.value) {
     const now = new Date();
@@ -21,16 +21,16 @@ form.addEventListener('submit', function(e) {
     socket.emit('chat message', {
       name: nickname,
       text: input.value,
-      time: `${hour}:${minute}`
+      time: `${hour}:${minute}`,
     });
     input.value = '';
   }
 });
 
 // Geçmiş mesajları ekrana yaz
-socket.on('message history', function(msgArray) {
+socket.on('message history', function (msgArray) {
   messages.innerHTML = '';
-  msgArray.forEach(function(msg) {
+  msgArray.forEach(function (msg) {
     const item = document.createElement('li');
     if (msg.name === nickname) {
       item.classList.add('my-message');
@@ -41,7 +41,7 @@ socket.on('message history', function(msgArray) {
   messages.scrollTop = messages.scrollHeight;
 });
 
-socket.on('chat message', function(msg) {
+socket.on('chat message', function (msg) {
   const item = document.createElement('li');
   if (msg.name === nickname) {
     item.classList.add('my-message');
@@ -51,7 +51,7 @@ socket.on('chat message', function(msg) {
   messages.scrollTop = messages.scrollHeight;
 });
 
-socket.on('user joined', function(name) {
+socket.on('user joined', function (name) {
   const item = document.createElement('li');
   item.textContent = `${name} sohbete katıldı.`;
   item.style.fontStyle = 'italic';
@@ -59,7 +59,7 @@ socket.on('user joined', function(name) {
   messages.scrollTop = messages.scrollHeight;
 });
 
-socket.on('user left', function(name) {
+socket.on('user left', function (name) {
   const item = document.createElement('li');
   item.textContent = `${name} sohbetten ayrıldı.`;
   item.style.fontStyle = 'italic';
@@ -67,9 +67,9 @@ socket.on('user left', function(name) {
   messages.scrollTop = messages.scrollHeight;
 });
 
-socket.on('user list', function(list) {
+socket.on('user list', function (list) {
   userList.innerHTML = '';
-  list.forEach(function(name) {
+  list.forEach(function (name) {
     const li = document.createElement('li');
     li.textContent = name;
     userList.appendChild(li);
