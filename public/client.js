@@ -27,9 +27,19 @@ form.addEventListener('submit', function(e) {
   }
 });
 
+// Geçmiş mesajları ekrana yaz
+socket.on('message history', function(msgArray) {
+  messages.innerHTML = '';
+  msgArray.forEach(function(msg) {
+    const item = document.createElement('li');
+    item.textContent = `[${msg.time}] ${msg.name}: ${msg.text}`;
+    messages.appendChild(item);
+  });
+  messages.scrollTop = messages.scrollHeight;
+});
+
 socket.on('chat message', function(msg) {
   const item = document.createElement('li');
-  // Saat bilgisini ekranda gösteriyoruz
   item.textContent = `[${msg.time}] ${msg.name}: ${msg.text}`;
   messages.appendChild(item);
   messages.scrollTop = messages.scrollHeight;

@@ -9,6 +9,7 @@ const io = new Server(server);
 app.use(express.static('public'));
 
 const users = {};
+const messages = []; // Mesajları burada saklıyoruz
 
 function broadcastUserList() {
   io.emit('user list', Object.values(users));
@@ -16,6 +17,9 @@ function broadcastUserList() {
 
 io.on('connection', (socket) => {
   let userName = '';
+
+  // Yeni bağlanan kullanıcıya eski mesajlar gönder
+  socket.emit('message history', messages);
 
   socket.on('join', (name) => {
     userName = name;
@@ -25,7 +29,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('chat message', (msg) => {
+    messages.push(msg); // Mesajı kaydet
     io.emit('chat message', msg);
+    // (Opsiyonel) Eğer çok mesaj olursa, ilk 100 mesajı tutmak için:
+    // if (messages.length > 100) messages.shift();
   });
 
   socket.on('disconnect', () => {
