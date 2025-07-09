@@ -6,23 +6,37 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Statik dosyalar (frontend) için 'public' klasörü kullanılacak
 app.use(express.static('public'));
 
-io.on('connection', (socket) => {
-  console.log('Bir kullanıcı bağlandı');
+const users = {};
 
-  // Gelen mesajı herkese gönder
+function broadcastUserList() {
+  io.emit('user list', Object.values(users));
+}
+
+io.on('connection', (socket) => {
+  let userName = '';
+
+  socket.on('join', (name) => {
+    userName = name;
+    users[socket.id] = userName;
+    socket.broadcast.emit('user joined', userName);
+    broadcastUserList();
+  });
+
   socket.on('chat message', (msg) => {
     io.emit('chat message', msg);
   });
 
   socket.on('disconnect', () => {
-    console.log('Bir kullanıcı ayrıldı');
+    if (userName) {
+      socket.broadcast.emit('user left', userName);
+      delete users[socket.id];
+      broadcastUserList();
+    }
   });
 });
 
-// Sunucuyu başlat
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Sunucu ${PORT} portunda başlatıldı`);

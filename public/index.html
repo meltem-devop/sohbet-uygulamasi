@@ -8,11 +8,17 @@
 </head>
 <body>
   <div id="chat">
-    <ul id="messages"></ul>
-    <form id="form" autocomplete="off">
-      <input id="input" autocomplete="off" placeholder="Mesajınızı yazın..." />
-      <button>Gönder</button>
-    </form>
+    <div id="sidebar">
+      <h4>Online Kullanıcılar</h4>
+      <ul id="user-list"></ul>
+    </div>
+    <div id="main">
+      <ul id="messages"></ul>
+      <form id="form" autocomplete="off">
+        <input id="input" autocomplete="off" placeholder="Mesajınızı yazın..." />
+        <button>Gönder</button>
+      </form>
+    </div>
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <script src="client.js"></script>

@@ -2,6 +2,7 @@ const socket = io();
 const form = document.getElementById('form');
 const input = document.getElementById('input');
 const messages = document.getElementById('messages');
+const userList = document.getElementById('user-list');
 
 let nickname = '';
 
@@ -40,4 +41,13 @@ socket.on('user left', function(name) {
   item.style.fontStyle = 'italic';
   messages.appendChild(item);
   messages.scrollTop = messages.scrollHeight;
+});
+
+socket.on('user list', function(list) {
+  userList.innerHTML = '';
+  list.forEach(function(name) {
+    const li = document.createElement('li');
+    li.textContent = name;
+    userList.appendChild(li);
+  });
 });
