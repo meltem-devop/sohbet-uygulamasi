@@ -3,17 +3,41 @@ const form = document.getElementById('form');
 const input = document.getElementById('input');
 const messages = document.getElementById('messages');
 
+let nickname = '';
+
+while (!nickname) {
+  nickname = prompt('Lütfen bir kullanıcı adı girin:');
+}
+
+socket.emit('join', nickname);
+
 form.addEventListener('submit', function(e) {
   e.preventDefault();
   if (input.value) {
-    socket.emit('chat message', input.value);
+    socket.emit('chat message', { name: nickname, text: input.value });
     input.value = '';
   }
 });
 
 socket.on('chat message', function(msg) {
   const item = document.createElement('li');
-  item.textContent = msg;
+  item.textContent = `${msg.name}: ${msg.text}`;
+  messages.appendChild(item);
+  messages.scrollTop = messages.scrollHeight;
+});
+
+socket.on('user joined', function(name) {
+  const item = document.createElement('li');
+  item.textContent = `${name} sohbete katıldı.`;
+  item.style.fontStyle = 'italic';
+  messages.appendChild(item);
+  messages.scrollTop = messages.scrollHeight;
+});
+
+socket.on('user left', function(name) {
+  const item = document.createElement('li');
+  item.textContent = `${name} sohbetten ayrıldı.`;
+  item.style.fontStyle = 'italic';
   messages.appendChild(item);
   messages.scrollTop = messages.scrollHeight;
 });
