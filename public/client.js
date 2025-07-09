@@ -32,6 +32,9 @@ socket.on('message history', function(msgArray) {
   messages.innerHTML = '';
   msgArray.forEach(function(msg) {
     const item = document.createElement('li');
+    if (msg.name === nickname) {
+      item.classList.add('my-message');
+    }
     item.textContent = `[${msg.time}] ${msg.name}: ${msg.text}`;
     messages.appendChild(item);
   });
@@ -40,6 +43,9 @@ socket.on('message history', function(msgArray) {
 
 socket.on('chat message', function(msg) {
   const item = document.createElement('li');
+  if (msg.name === nickname) {
+    item.classList.add('my-message');
+  }
   item.textContent = `[${msg.time}] ${msg.name}: ${msg.text}`;
   messages.appendChild(item);
   messages.scrollTop = messages.scrollHeight;

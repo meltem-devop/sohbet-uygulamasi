@@ -75,3 +75,8 @@ body {
   button:hover {
     background: #29539b;
   }
+  .my-message {
+    background: #d2eafd;
+    color: #163b60;
+    font-weight: bold;
+  }
