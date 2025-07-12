@@ -7,11 +7,37 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div id="chat">
-      <div id="sidebar">
+    <!-- Oda & kullanıcı adı modalı -->
+    <div id="room-modal" class="modal-backdrop">
+      <div class="modal">
+        <h2>Oda Oluştur / Katıl</h2>
+        <input id="room-input" placeholder="Oda adı girin" maxlength="20" />
+        <input id="nickname-input" placeholder="Kullanıcı adınız" maxlength="20" />
+        <button id="join-btn">Katıl</button>
+      </div>
+    </div>
+
+    <div id="sidebar">
+      <div class="sidebar-section">
         <h4>Online Kullanıcılar</h4>
         <ul id="user-list"></ul>
       </div>
+      <div class="sidebar-section registered">
+        <div class="registered-header">
+          <h4>Kayıtlı Kullanıcılar</h4>
+          <button id="toggle-registered-btn" title="Paneli gizle/göster">
+            <svg id="registered-arrow" width="22" height="22" viewBox="0 0 22 22">
+              <polyline points="7,8 11,14 15,8" fill="none" stroke="#3d6dcc" stroke-width="2"/>
+            </svg>
+          </button>
+        </div>
+        <ul id="all-user-list" class="visible"></ul>
+      </div>
+      <div class="sidebar-section current-room">
+        <span id="room-info"></span>
+      </div>
+    </div>
+    <div id="chat">
       <div id="main">
         <ul id="messages"></ul>
         <form id="form" autocomplete="off">

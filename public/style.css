@@ -3,48 +3,179 @@ body {
   background: #e6ecf5;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
-#chat {
+.modal-backdrop {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  background: rgba(40,48,70,0.16);
   display: flex;
-  width: 95vw;
-  max-width: 900px;
-  min-height: 400px;
-  margin: 32px auto;
-  box-shadow: 0 0 16px #b1bcce;
+  align-items: center;
+  justify-content: center;
+}
+.modal {
   background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
+  padding: 36px 28px 26px 28px;
+  border-radius: 14px;
+  box-shadow: 0 8px 36px rgba(61,109,204,0.19), 0 2px 8px #b1bcce;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 280px;
+  gap: 14px;
+}
+#room-input, #nickname-input {
+  width: 220px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #c3d3e2;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+#join-btn {
+  padding: 10px 24px;
+  background: #3d6dcc;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background 0.2s;
+  margin-top: 4px;
+}
+#join-btn:hover {
+  background: #29539b;
 }
 
 #sidebar {
-  width: 200px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 260px;
   background: #f0f4fa;
-  border-right: 1px solid #dee2e8;
-  padding: 16px 12px;
-  box-sizing: border-box;
+  box-shadow: 2px 0 12px rgba(61,109,204,0.09), 0 1.5px 6px #b1bcce;
+  border-right: 1.5px solid #dee2e8;
+  z-index: 1010;
+  display: flex;
+  flex-direction: column;
+  padding-top: 30px;
+  gap: 16px;
 }
-#sidebar h4 {
-  margin-top: 0;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #29539b;
+.sidebar-section {
+  padding: 0 22px 14px 22px;
 }
-#user-list {
+.sidebar-section h4 {
+  margin: 0 0 10px 0;
+  font-weight: 700;
+  color: #3d6dcc;
+  font-size: 15.5px;
+}
+#user-list, #all-user-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-#user-list li {
-  padding: 5px 0;
-  color: #29539b;
+#user-list li, #all-user-list li {
+  padding: 6px 0;
   border-bottom: 1px solid #e9eef7;
   font-size: 15px;
+  display: flex;
+  align-items: center;
+}
+#user-list li:last-child, #all-user-list li:last-child {
+  border-bottom: none;
+}
+#user-list li {
+  color: #1a3770;
+}
+#all-user-list li {
+  color: #6271a7;
+}
+.online-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: #34c759;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.registered-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#toggle-registered-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  margin-left: 5px;
+  transition: background 0.14s;
+  display: flex;
+  align-items: center;
+}
+#toggle-registered-btn:hover {
+  background: #e0eafd;
+}
+#registered-arrow {
+  transition: transform 0.22s;
+}
+#all-user-list {
+  transition: max-height 0.22s, opacity 0.18s;
+  max-height: 320px;
+  opacity: 1;
+  overflow-y: auto;
+}
+#all-user-list.hidden {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  padding: 0;
+}
+#registered-arrow.rotated {
+  transform: rotate(180deg);
+}
+.sidebar-section.current-room {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #6271a7;
+  padding-bottom: 0;
+}
+#room-info {
+  font-weight: 600;
+  color: #29539b;
+  background: #e3edfa;
+  padding: 5px 12px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 6px;
+}
+#chat {
+  margin-left: 260px;
+  transition: margin-left 0.24s cubic-bezier(.7,.3,.4,1);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: calc(100vw - 260px);
+  max-width: 100vw;
 }
 #main {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  margin: 32px auto;
+  width: 98%;
+  max-width: 900px;
+  box-shadow: 0 0 16px #b1bcce;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
 }
 #messages {
   flex: 1;
@@ -64,18 +195,27 @@ body {
   font-size: 15px;
   max-width: 85vw;
   transition: background 0.2s;
+  color: #222;
+  font-weight: 400;
 }
-.my-message {
+#messages li.last-message {
   background: #d2eafd;
-  color: #163b60;
-  font-weight: bold;
-  align-self: flex-end;
+}
+.msg-meta {
+  color: #3d6dcc;
+  font-weight: 600;
+  margin-right: 6px;
+  font-size: 14px;
+}
+.msg-text {
+  color: #222;
+  font-weight: 400;
 }
 #form {
   display: flex;
   padding: 16px;
   background: #f0f4fa;
-  border-top: 1px solid #dee2e8;
+  border-top: 1.5px solid #dee2e8;
   gap: 8px;
 }
 #input {
@@ -104,69 +244,30 @@ button {
 button:hover {
   background: #29539b;
 }
-
-@media (max-width: 700px) {
-  #chat {
-    flex-direction: column;
-    max-width: 98vw;
-    margin: 0 auto;
-    border-radius: 0;
-    min-height: 90vh;
-  }
+@media (max-width: 900px) {
   #sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #dee2e8;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 8px 8px;
-    background: #f3f7fe;
+    width: 150px;
   }
-  #sidebar h4 {
-    margin: 0 12px 0 0;
-    font-size: 15px;
+  #chat {
+    margin-left: 150px;
+    width: calc(100vw - 150px);
   }
-  #user-list {
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    overflow-x: auto;
+}
+@media (max-width: 600px) {
+  #sidebar {
+    width: 92vw;
+    min-width: 0;
+    max-width: 96vw;
+    z-index: 2000;
+    padding-top: 10px;
   }
-  #user-list li {
-    border: none;
-    background: #e3edfa;
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-size: 14px;
-    color: #29539b;
-    min-width: 60px;
-    text-align: center;
+  #chat {
+    margin-left: 0;
+    width: 100vw;
   }
   #main {
-    min-width: 0;
-  }
-  #messages {
-    padding: 14px 4px 0 4px;
-    font-size: 14px;
-    min-height: 250px;
-  }
-  #messages li {
-    font-size: 14px;
-    padding: 7px 10px;
-    border-radius: 7px;
+    margin: 0 auto;
     max-width: 100vw;
-  }
-  #form {
-    padding: 10px 4px;
-    gap: 5px;
-  }
-  #input {
-    font-size: 14px;
-    padding: 8px;
-  }
-  button {
-    padding: 7px 12px;
-    font-size: 14px;
+    border-radius: 0;
   }
 }
