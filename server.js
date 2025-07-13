@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
 
     usersPerRoom[room][socket.id] = userName;
 
-    // --- Oda bazlı kayıtlı kullanıcılar ---
+    // Oda bazlı kayıtlı kullanıcılar
     if (!registeredUsers[room]) registeredUsers[room] = new Set();
     registeredUsers[room].add(userName);
 
@@ -95,8 +95,8 @@ io.on('connection', (socket) => {
   });
 });
 
-app.get('/:room', (req, res, next) => {
-  if (req.path.startsWith('/socket.io/')) return next();
+// SPA fallback (en sonda!)
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
