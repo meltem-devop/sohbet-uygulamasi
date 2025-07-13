@@ -8,15 +8,12 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Statik dosyaları servis et (public klasörü)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Oda ve mesaj yönetimi için değişkenler
 const usersPerRoom = {};
 const messagesPerRoom = {};
-const registeredUsers = new Set();
+const registeredUsers = {}; // Her oda için ayrı
 
-// Bir odanın mesajlarını dosyadan oku
 function loadMessages(room) {
   const messagesFile = path.join(__dirname, `messages_${room}.json`);
   try {
@@ -32,7 +29,6 @@ function loadMessages(room) {
   }
 }
 
-// Bir odanın mesajlarını dosyaya kaydet
 function saveMessages(room) {
   const messagesFile = path.join(__dirname, `messages_${room}.json`);
   try {
@@ -60,15 +56,18 @@ io.on('connection', (socket) => {
     if (!messagesPerRoom[room]) loadMessages(room);
 
     usersPerRoom[room][socket.id] = userName;
-    registeredUsers.add(userName);
+
+    // --- Oda bazlı kayıtlı kullanıcılar ---
+    if (!registeredUsers[room]) registeredUsers[room] = new Set();
+    registeredUsers[room].add(userName);
 
     socket.emit('message history', messagesPerRoom[room]);
     socket.to(room).emit('user joined', userName);
 
     broadcastUserList(room);
 
-    // Kayıtlı (tüm zamanların) kullanıcı listesini herkese gönder
-    io.emit('all user list', Array.from(registeredUsers));
+    // Sadece o odanın kayıtlı kullanıcı listesi
+    io.to(room).emit('all user list', Array.from(registeredUsers[room]));
   });
 
   socket.on('chat message', (msg) => {
@@ -87,16 +86,16 @@ io.on('connection', (socket) => {
       socket.to(currentRoom).emit('user left', userName);
       delete usersPerRoom[currentRoom][socket.id];
       broadcastUserList(currentRoom);
-      // (Kayıtlı kullanıcıdan silmek istersen buraya ekleyebilirsin, şu an tüm zamanların listesi tutuluyor)
-      // registeredUsers.delete(userName);
-      // io.emit('all user list', Array.from(registeredUsers));
+      // Kullanıcıyı registeredUsers'dan silmek istersen:
+      // if (registeredUsers[currentRoom]) {
+      //   registeredUsers[currentRoom].delete(userName);
+      //   io.to(currentRoom).emit('all user list', Array.from(registeredUsers[currentRoom]));
+      // }
     }
   });
 });
 
-// Sadece kendi odalarını SPA olarak handle et! (public ve socket.io dışı her şey)
 app.get('/:room', (req, res, next) => {
-  // Eğer istek /socket.io/ ile başlıyorsa bu route'u geç.
   if (req.path.startsWith('/socket.io/')) return next();
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
