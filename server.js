@@ -94,8 +94,10 @@ io.on('connection', (socket) => {
   });
 });
 
-// EN SONDA: Dinamik oda route'u (SPA için)
-app.get('/:room', (req, res) => {
+// Sadece kendi odalarını SPA olarak handle et! (public ve socket.io dışı her şey)
+app.get('/:room', (req, res, next) => {
+  // Eğer istek /socket.io/ ile başlıyorsa bu route'u geç.
+  if (req.path.startsWith('/socket.io/')) return next();
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
