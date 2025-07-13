@@ -8,16 +8,13 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// Statik dosyaları servis et (public klasörü)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Dinamik oda route'u (SPA için) – bu satır çok önemli!
-app.get('/:room', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Her oda için kullanıcılar ve mesajlar tutulacak
+// Oda ve mesaj yönetimi için değişkenler
 const usersPerRoom = {};
 const messagesPerRoom = {};
+const registeredUsers = new Set();
 
 // Bir odanın mesajlarını dosyadan oku
 function loadMessages(room) {
@@ -46,7 +43,6 @@ function saveMessages(room) {
 }
 
 function broadcastUserList(room) {
-  // Kullanıcı adlarını array olarak gönderiyoruz (sadece string)
   io.to(room).emit('user list', Object.values(usersPerRoom[room] || {}));
 }
 
@@ -63,15 +59,16 @@ io.on('connection', (socket) => {
     if (!usersPerRoom[room]) usersPerRoom[room] = {};
     if (!messagesPerRoom[room]) loadMessages(room);
 
-    // KESİNLİKLE SADECE İSMİ KAYDET!
     usersPerRoom[room][socket.id] = userName;
+    registeredUsers.add(userName);
 
     socket.emit('message history', messagesPerRoom[room]);
-
-    // Yine sadece ismi gönder
     socket.to(room).emit('user joined', userName);
 
     broadcastUserList(room);
+
+    // Kayıtlı (tüm zamanların) kullanıcı listesini herkese gönder
+    io.emit('all user list', Array.from(registeredUsers));
   });
 
   socket.on('chat message', (msg) => {
@@ -90,8 +87,16 @@ io.on('connection', (socket) => {
       socket.to(currentRoom).emit('user left', userName);
       delete usersPerRoom[currentRoom][socket.id];
       broadcastUserList(currentRoom);
+      // (Kayıtlı kullanıcıdan silmek istersen buraya ekleyebilirsin, şu an tüm zamanların listesi tutuluyor)
+      // registeredUsers.delete(userName);
+      // io.emit('all user list', Array.from(registeredUsers));
     }
   });
+});
+
+// EN SONDA: Dinamik oda route'u (SPA için)
+app.get('/:room', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
